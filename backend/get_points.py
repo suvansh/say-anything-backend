@@ -3,6 +3,9 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
+import os
+from os.path import isfile
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -156,6 +159,9 @@ def get_points(text_query, image, num_detections):
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load(clip_model, device=device, jit=False)
+    MODEL_WEIGHTS_PATH = os.environ["MODEL_WEIGHTS_PATH"]
+    if isfile(MODEL_WEIGHTS_PATH):
+        model.load_state_dict(torch.load(MODEL_WEIGHTS_PATH, map_location=torch.device(device)))
 
     image_input = preprocess(image).unsqueeze(0).to(device)
     image_np = format_image(image, model.visual.input_resolution)
