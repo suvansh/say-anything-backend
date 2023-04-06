@@ -160,14 +160,7 @@ def get_points(text_query, image, num_detections):
     image_input = preprocess(image).unsqueeze(0).to(device)
     image_np = format_image(image, model.visual.input_resolution)
     text_input = clip.tokenize([text_query]).to(device)
-    inp = np.asarray(image.convert("RGB").resize((224, 224))).astype(np.float32) / 255.
-    print(f"Image size: {image.size}")
-    print(f"image_np max: {inp.max()}")
-    print(f"image_np first channel 5x5: {inp[:5,:5,0]}")
-    print(f"image_np second channel 5x5: {inp[:5,:5,1]}")
-    print(f"image_np third channel 5x5: {inp[:5,:5,2]}")
-    print(f"Text tokenized first 5: {text_input[:5]}")
-
+    
     attn_map = gradCAM(
         model.visual,
         image_input,
@@ -185,9 +178,5 @@ def get_points(text_query, image, num_detections):
     if num_detections is not None:
         peaks = peaks[:num_detections]
     viz_attn(image_np, attn_map_log, True)
-    print(f"Found {len(peaks)} peaks")
     resized_peaks = resize_peaks(peaks, model, image)
-    if peaks.shape[0]:
-        print(f"Peaks (transformed): {peaks}. Image size is {(model.visual.input_resolution, model.visual.input_resolution)}")
-        print(f"Peaks (original): {resized_peaks}. Image size is {image.size}")
     return [{"x": int(x), "y": int(y)} for y, x, _ in resized_peaks]

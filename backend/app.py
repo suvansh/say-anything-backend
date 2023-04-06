@@ -7,12 +7,11 @@ from get_points import get_points
 import numpy as np
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": ["chrome-extension://hoijgmpnklmkakbhnkimlfppcfegegmp", "chrome-extension://PUBLISHED_EXTENSION_ID"]}})
 api = Api(app)
 
 class CoordinatesResource(Resource):
     def post(self):
-        print("POST received")
         text_query = request.form['textQuery']
         image_file = request.files['image']
         image_data = image_file.read()
