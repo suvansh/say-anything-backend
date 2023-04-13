@@ -25,35 +25,6 @@ def normalize(x: np.ndarray) -> np.ndarray:
     return x
 
 
-
-""" REMOVE """
-
-# Modified from: https://github.com/salesforce/ALBEF/blob/main/visualization.ipynb
-def getAttMap(img, attn_map, blur=True):
-    if blur:
-        attn_map = ndimage.gaussian_filter(attn_map, 0.02*max(img.shape[:2]))
-    attn_map = normalize(attn_map)
-    cmap = plt.get_cmap('jet')
-    attn_map_c = np.delete(cmap(attn_map), 3, 2)
-    attn_map = 1*(1-attn_map**0.7).reshape(attn_map.shape + (1,))*img + \
-            (attn_map**0.7).reshape(attn_map.shape+(1,)) * attn_map_c
-    return attn_map
-
-def viz_attn(img, attn_map, blur=True):
-    _, axes = plt.subplots(1, 2, figsize=(10, 5))
-    axes[0].imshow(img)
-    axes[1].imshow(getAttMap(img, attn_map, blur))
-    for ax in axes:
-        ax.axis("off")
-    plt.savefig("out/attention_map.png")
-
-
-""" END REMOVE """
-
-
-
-
-
 def format_image(image, resize=None):
     """ image is a PIL image """
     image = image.convert("RGB")
@@ -183,6 +154,5 @@ def get_points(text_query, image, num_detections):
     peaks = np.array(sorted(peaks.tolist(), key=lambda x: attn_map[int(x[0]), int(x[1])], reverse=True))
     if num_detections is not None:
         peaks = peaks[:num_detections]
-    viz_attn(image_np, attn_map_log, True)
     resized_peaks = resize_peaks(peaks, model, image)
     return [{"x": int(x), "y": int(y)} for y, x, _ in resized_peaks]
