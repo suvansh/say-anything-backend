@@ -6,13 +6,28 @@ from io import BytesIO
 from get_points import get_points
 import numpy as np
 import json
+import logging
+logging.basicConfig(level=logging.INFO)
+handler = logging.FileHandler('/home/ubuntu/logs/sam-clip-server.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+handler.setFormatter(formatter)
+logger = logging.getLogger(__name__)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
 
 app = Flask(__name__)
-CORS(app) #, resources={r"/api/*": {"origins": ["chrome-extension://hoijgmpnklmkakbhnkimlfppcfegegmp", "chrome-extension://PUBLISHED_EXTENSION_ID", "https://segment-anything.com"]}})
+CORS(app, origins=["*"]) #, resources={r"/api/*": {"origins": ["chrome-extension://hoijgmpnklmkakbhnkimlfppcfegegmp", "chrome-extension://PUBLISHED_EXTENSION_ID", "https://segment-anything.com"]}})
 api = Api(app)
 
 class CoordinatesResource(Resource):
+    def get(self):
+        logging.info('received get request')
+        return {'message': 'You have reached the SAM CLIP API', 'points': [{"x": 1200, "y": 1000}],
+                              'image_width': 2000,  # TODO remove
+                                            'image_height': 1200}, 200
     def post(self):
+        logging.info('received post request')
         text_query = request.form['textQuery']
         image_file = request.files['image']
         image_data = image_file.read()
