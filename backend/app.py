@@ -6,6 +6,7 @@ from io import BytesIO
 from get_points import get_points
 import numpy as np
 import json
+import requests
 import logging
 logging.basicConfig(level=logging.INFO)
 handler = logging.FileHandler('/home/ubuntu/logs/sam-clip-server.log')
@@ -14,31 +15,26 @@ handler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
-
+logging.info("start")
 
 app = Flask(__name__)
 CORS(app, origins=["*"]) #, resources={r"/api/*": {"origins": ["chrome-extension://hoijgmpnklmkakbhnkimlfppcfegegmp", "chrome-extension://PUBLISHED_EXTENSION_ID", "https://segment-anything.com"]}})
-api = Api(app)
 
-class CoordinatesResource(Resource):
-    def get(self):
+@app.route('/api/coordinates', methods=['GET', 'POST'])
+def handle_requests():
+    if request.method == "GET":
         logging.info('received get request')
-        return {'message': 'You have reached the SAM CLIP API', 'points': [{"x": 1200, "y": 1000}],
-                              'image_width': 2000,  # TODO remove
-                                            'image_height': 1200}, 200
-    def post(self):
+        return {'message': 'You have reached the SAM-CLIP API!'}, 200
+    elif request.method == "POST":
         logging.info('received post request')
-        text_query = request.form['textQuery']
-        image_file = request.files['image']
-        image_data = image_file.read()
+        text_query = request.json['textQuery']
+        image_URL= request.json['imageURL']
+        img_data = requests.get(image_URL).content
+        image = Image.open(BytesIO(img_data))
 
-        with open("images/received_image.png", "wb") as f:
-            f.write(image_data)
-        num_detections = int(request.form['numDetections']) if 'numDetections' in request.form else None
-        image = Image.open(image_file)
+        num_detections = request.json['numDetections']
+        num_detections = num_detections and int(num_detections)
         im_width, im_height = image.size
-        image.save("images/image.png")
-        np.save("images/image_np.npy", np.asarray(image.convert("RGB")))
 
         # Process the image and text query using your custom function
         points = get_points(text_query, image, num_detections)
@@ -47,7 +43,6 @@ class CoordinatesResource(Resource):
                 'image_width': im_width,
                 'image_height': im_height}, 200
 
-api.add_resource(CoordinatesResource, '/api/coordinates')
 
 def lambda_handler(event, context):
     http_method = event['httpMethod']
