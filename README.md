@@ -4,5 +4,5 @@ If you want to run the [Say Anything Chrome extension](https://chrome.google.com
 cd backend
 python app.py
 ```
-In the Say Anything interface, select the checkbox for "Use custom server." Enter the host and port you're running this server on in the input text box that appears.
+In the Say Anything interface, select the checkbox for "Use custom server." Enter the host and port you're running this server on (`http://localhost:5000` by default) in the input text box that appears.
 
