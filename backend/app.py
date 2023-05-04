@@ -8,14 +8,6 @@ import numpy as np
 import json
 import requests
 import logging
-logging.basicConfig(level=logging.INFO)
-handler = logging.FileHandler('/home/ubuntu/logs/sam-clip-server.log')
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-handler.setFormatter(formatter)
-logger = logging.getLogger(__name__)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-logging.info("start")
 
 app = Flask(__name__)
 CORS(app, origins=["*"]) #, resources={r"/api/*": {"origins": ["chrome-extension://hoijgmpnklmkakbhnkimlfppcfegegmp", "chrome-extension://PUBLISHED_EXTENSION_ID", "https://segment-anything.com"]}})
